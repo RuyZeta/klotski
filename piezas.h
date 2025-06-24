@@ -1,0 +1,112 @@
+//
+// Created by rodrigo on 23/06/25.
+//
+
+#ifndef PIEZAS_H
+#define PIEZAS_H
+
+#include <iostream>
+#include <string>
+
+typedef unsigned int uint;
+
+#define uno ((uint)1)
+typedef uint board;
+#define pvco 0
+#define pG   1
+#define pV1  2
+#define pV2  3
+#define pV3  4
+#define pV4  5
+#define pH   6
+#define ps1  7
+#define ps2  8
+#define ps3  9
+#define ps4  10
+//board and tiles definitions for initials positions
+static uint fullBoard = 0xfffff;
+static uint first_line = 0xf;
+static uint second_line = 0xf0;
+static uint third_line = 0xf00;
+static uint fourth_line = 0xf000;
+static uint fifth_line = 0xf0000;
+static uint first_col = 0x88888;
+static uint second_col = 0x44444;
+static uint third_col = 0x22222;
+static uint fourth_col = 0x11111;
+static uint bloqueG = 0x66000;
+static uint bloqueV1 = 0x88000;
+static uint bloqueV2 = 0x11000;
+static uint bloqueV3 = 0x88;
+static uint bloqueV4 = 0x11;
+static uint small1 = 0x800;
+static uint small2 = 0x100;
+static uint small3 = 0x40;
+static uint small4 = 0x20;
+static uint horiz = 0x600;
+static uint vacio = 0x6;
+
+static uint GMoves[12] {
+                    0xdd3ff,0x669ff, 0xbbcff, 0x3dd3f,
+                    0x9669f, 0xcbbcf, 0xf3dd3, 0xf9669,
+                    0xfcbbc, 0xff3dd, 0xff966, 0xffcbb
+};
+
+static uint VMoves[16] {
+                        0xbb7ff, 0x55bff, 0xaadff, 0xddeff,
+                        0x7bb7f, 0xb55bf, 0xdaadf, 0xeddef,
+                        0xf7bb7, 0xfb55b, 0xfdaad, 0xfedde,
+                        0xff7bb, 0xffb55, 0xffdaa, 0xffedd
+};
+
+static uint HMoves[15] {
+                            0xd3fff, 0x69fff, 0xbcfff,
+                            0x3d3ff, 0x969ff, 0xcbcff,
+                            0xf3d3f, 0xf969f, 0xfcbcf,
+                            0xff3d3, 0xff969, 0xffcbc,
+                            0xfff3d, 0xfff96, 0xfffcb
+};
+
+static uint SMoves[20] {
+    0xb7fff, 0x5bfff, 0xadfff, 0xdefff,
+    0x7b7ff, 0xb5bff, 0xdadff, 0xedeff,
+    0xf7b7f, 0xfb5bf, 0xfdadf, 0xfedef,
+    0xff7b7, 0xffb5b, 0xffdad, 0x8fede,
+    0xfff7b, 0xfffb5, 0xfffda, 0xfffed
+};
+
+#define sq20    (uno<<19)
+#define sq19    (uno<<18)
+#define sq18    (uno<<17)
+#define sq17    (uno<<16)
+#define sq16    (uno<<15)
+#define sq15    (uno<<14)
+#define sq14    (uno<<13)
+#define sq13    (uno<<12)
+#define sq12    (uno<<11)
+#define sq11    (uno<<10)
+#define sq10    (uno<<9)
+#define sq9     (uno<<8)
+#define sq8     (uno<<7)
+#define sq7     (uno<<6)
+#define sq6     (uno<<5)
+#define sq5     (uno<<4)
+#define sq4     (uno<<3)
+#define sq3     (uno<<2)
+#define sq2     (uno<<1)
+#define sq1     (uno<<0)
+
+struct nodo {
+    uint vco, G, V1, V2, V3, V4, H, s1, s2, s3, s4 ;
+    nodo();
+    void print_board();
+    char letra_bloque(const uint& b);
+    void set_board(uint* bd);
+};
+
+void print_board(const uint& b);
+void print_bin(const uint& b);
+
+
+
+#endif //PIEZAS_H
