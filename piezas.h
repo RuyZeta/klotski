@@ -44,7 +44,8 @@ static uint small2 = 0x100;
 static uint small3 = 0x40;
 static uint small4 = 0x20;
 static uint horiz = 0x600;
-static uint vacio = 0x6;
+static uint vacio1 = 0x4;
+static uint vacio2 = 0x2;
 
 static uint GMoves[12] {
                     0xdd3ff,0x669ff, 0xbbcff, 0x3dd3f,
@@ -97,7 +98,7 @@ static uint SMoves[20] {
 #define sq1     (uno<<0)
 
 struct nodo {
-    uint vco, G, V1, V2, V3, V4, H, s1, s2, s3, s4 ;
+    uint vco1, vco2, G, V1, V2, V3, V4, H, s1, s2, s3, s4;
     nodo();
     void print_board();
     char letra_bloque(const uint& b);

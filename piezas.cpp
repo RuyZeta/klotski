@@ -5,7 +5,8 @@
 #include "piezas.h"
 
 nodo::nodo() {
-    vco = vacio;
+    vco1 = vacio1;
+    vco2 = vacio2;
     G = bloqueG;
     V1 = bloqueV1;
     V2 = bloqueV2;
@@ -28,7 +29,9 @@ void nodo::print_board() {
 }
 
 char nodo::letra_bloque(const uint &b) {
-    if(b&vco)
+    if(b&vco1)
+        return '-';
+    else if (b&vco2)
         return '-';
     else if(b&G)
         return 'X';
@@ -55,17 +58,18 @@ char nodo::letra_bloque(const uint &b) {
 }
 
 void nodo::set_board(uint *bd) {
-    vco = bd[0];
-    G = bd[1];
-    V1 = bd[2];
-    V2 = bd[3];
-    V3 = bd[4];
-    V4 = bd[5];
-    H = bd[6];
-    s1 = bd[7];
-    s2 = bd[8];
-    s3 = bd[9];
-    s4 = bd[10];
+    vco1 = bd[0];
+    vco2 = bd[1];
+    G = bd[2];
+    V1 = bd[3];
+    V2 = bd[4];
+    V3 = bd[5];
+    V4 = bd[6];
+    H = bd[7];
+    s1 = bd[8];
+    s2 = bd[9];
+    s3 = bd[10];
+    s4 = bd[11];
 }
 
 void print_board(const uint& b) {
