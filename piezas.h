@@ -12,17 +12,19 @@ typedef unsigned int uint;
 
 #define uno ((uint)1)
 typedef uint board;
-#define pvco 0
-#define pG   1
-#define pV1  2
-#define pV2  3
-#define pV3  4
-#define pV4  5
-#define pH   6
-#define ps1  7
-#define ps2  8
-#define ps3  9
-#define ps4  10
+#define TotFichas 12
+#define pvco1 0
+#define pvco2 1
+#define pG   2
+#define pV1  3
+#define pV2  4
+#define pV3  5
+#define pV4  6
+#define pH   7
+#define ps1  8
+#define ps2  9
+#define ps3  10
+#define ps4  11
 //board and tiles definitions for initials positions
 static uint fullBoard = 0xfffff;
 static uint first_line = 0xf;
@@ -103,6 +105,8 @@ struct nodo {
     void print_board();
     char letra_bloque(const uint& b);
     void set_board(uint* bd);
+    uint get_fichaPos(uint f);
+    uint vaciossonAdyacentes();
 };
 
 void print_board(const uint& b);

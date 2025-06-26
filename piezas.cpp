@@ -72,8 +72,27 @@ void nodo::set_board(uint *bd) {
     s4 = bd[11];
 }
 
+uint nodo::get_fichaPos(uint f) {
+    uint* temp = &vco1;
+    temp+=f;
+    return *temp;
+}
+
+uint nodo::vaciossonAdyacentes() {
+    if(((vco1>>1) & ~first_col) == vco2)
+        return vco1|vco2;
+    else if((((vco1<<1) & ~fourth_col) & fullBoard) == vco2)
+        return vco1|vco2;
+    else if((((vco1<<4) & ~fifth_line)) == vco2)
+        return vco1|vco2;
+    else if((vco1>>4) == vco2)
+        return vco1|vco2;
+    else
+        return 0;
+}
+
 void print_board(const uint& b) {
-    for(int i=19; i>=0; i--) {
+    for(int i=31; i>=0; i--) {
         std::cout <<((b&(1<<i)) ? " 1 " : " 0 ");
         if(!(i%4))
             std::cout << '\n';

@@ -2,19 +2,31 @@
 #include "piezas.h"
 using namespace std;
 
+nodo make_move(const nodo& n) {
+    nodo result;
+
+
+    return result;
+}
+
 
 
 int main() {
-    nodo n1, n2, n3;
+    nodo n1, n2, n3, n4;
     uint pos[12]  {0x800, 0x400, 0xcc000, 0x22000, 0x220, 0x110, 0x44,
                    0x3, 0x10000, 0x1000, 0x80, 0x8};
     uint pos1[12]  {0x800, 0x80, 0x330, 0x88000, 0x44000, 0x22000, 0x11000,
                     0xc, 0x400, 0x40, 0x2, 0x1};
+    uint pos2[12] { 0x8, 0x1, 0x6600, 0x88000, 0x11000, 0x880, 0x110, 0x60000,
+                    0x40, 0x20, 0x4, 0x2};
     n2.set_board(pos);
     n3.set_board(pos1);
+    n4.set_board(pos2);
 
-   for (int i=0; i<12; i++)
-       print_board(GMoves[i]);
+    n4.print_board();
+    print_board(n4.vaciossonAdyacentes());
+
+
 
 
     return 0;
