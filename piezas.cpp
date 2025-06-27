@@ -92,12 +92,24 @@ uint nodo::vaciossonAdyacentes() {
 }
 
 void print_board(const uint& b) {
-    for(int i=31; i>=0; i--) {
+    for(int i=19; i>=0; i--) {
         std::cout <<((b&(1<<i)) ? " 1 " : " 0 ");
         if(!(i%4))
             std::cout << '\n';
     }
     std::cout << '\n';
+}
+
+void print_bin(const uint &b, std::string s) {
+    std::cout  << "  hex: " << std::hex << std::setw(12) << b <<
+    " dec: " << std::dec << std::setw(12) << b << " :  ";
+    for(int i=31; i>=0; i--) {
+        std::cout << ((b&(1<<i)) ? "1 " : "0 ");
+        if(!(i%4))
+            std::cout << "  ";
+    }
+    std::cout << "   " << s << std::endl;
+
 }
 
 

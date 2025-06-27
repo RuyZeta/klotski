@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <string>
+#include <cassert>
+#include <iomanip>
 
 typedef unsigned int uint;
 
@@ -107,10 +109,15 @@ struct nodo {
     void set_board(uint* bd);
     uint get_fichaPos(uint f);
     uint vaciossonAdyacentes();
+    uint& operator[] (const uint& index) {
+        assert((index < TotFichas) && "error de limite array fichas");
+        return *(&vco1+index);
+    }
 };
 
 void print_board(const uint& b);
-void print_bin(const uint& b);
+
+void print_bin(const uint& b, std::string s="");
 
 
 

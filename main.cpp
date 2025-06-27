@@ -23,8 +23,17 @@ int main() {
     n3.set_board(pos1);
     n4.set_board(pos2);
 
-    n4.print_board();
-    print_board(n4.vaciossonAdyacentes());
+    uint a = 234;
+    uint b = 456;
+    uint m = 0b100100;
+    print_bin(a, "a:");
+    print_bin((b), "b");
+    print_bin((m), "m");
+    print_bin((a&(~m)) | (b&m), "a&~m | b&m");
+
+    print_bin( (b&m), "b&m");
+    print_bin(a&(~m), "a&~m");
+
 
 
 
