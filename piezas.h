@@ -104,11 +104,11 @@ static uint SMoves[20] {
 struct nodo {
     uint vco1, vco2, G, V1, V2, V3, V4, H, s1, s2, s3, s4;
     nodo();
-    void print_board();
-    char letra_bloque(const uint& b);
+    void print_board() const;
+    char letra_bloque(const uint& b) const;
     void set_board(uint* bd);
-    uint get_fichaPos(uint f);
-    uint vaciossonAdyacentes();
+    uint get_fichaPos(uint f) const;
+    uint vaciossonAdyacentes() const;
     uint& operator[] (const uint& index) {
         assert((index < TotFichas) && "error de limite array fichas");
         return *(&vco1+index);
@@ -131,6 +131,7 @@ uint clearibitsfromLSB( uint n, const uint& i);
 uint clearbitsfromMSB(uint n, const uint& i);
 //popcount kerniggan
 uint popcount(const uint& n);
-
+//propagate the least significant bit
+uint propagateLSB(const uint& n);
 
 #endif //PIEZAS_H

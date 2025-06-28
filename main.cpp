@@ -23,16 +23,13 @@ int main() {
 
     uint a = 234;
     uint b = 456;
-    uint m = 0b100101001100100;
+    uint m = 0b10001001010011010000;
 
     print_bin(m, " m");
-    print_bin(MSB(m), "MSB de m: ");
-    print_bin(LSB(m), "LSB de n: ");
-    print_bin(clearLSB(m), "clear LSB de m: ");
-    print_bin(clearibitsfromLSB(m, 9), "clear bits  LSB 9: ");
-    print_bin(clearbitsfromMSB(m, 9), "clear bits MSB 9: ");
-
-
+    print_bin(m-1, "m-1");
+    print_bin(m+1, "m+1");
+    print_bin((~m), "~m");
+    print_bin(propagateLSB(m), "m | m-1");
 
 
     return 0;

@@ -4,6 +4,8 @@
 
 #include "piezas.h"
 
+#include <iomanip>
+
 nodo::nodo() {
     vco1 = vacio1;
     vco2 = vacio2;
@@ -19,7 +21,7 @@ nodo::nodo() {
     s4 = small4;
 }
 
-void nodo::print_board() {
+void nodo::print_board() const {
     for(int i=19; i>=0; i--) {
         std::cout << " " << letra_bloque(uno<<i) << " ";
         if(!(i%4))
@@ -28,7 +30,9 @@ void nodo::print_board() {
     std::cout << '\n';
 }
 
-char nodo::letra_bloque(const uint &b) {
+
+
+char nodo::letra_bloque(const uint &b) const {
     if(b&vco1)
         return '-';
     else if (b&vco2)
@@ -72,14 +76,14 @@ void nodo::set_board(uint *bd) {
     s4 = bd[11];
 }
 
-uint nodo::get_fichaPos(uint f) {
-    uint* temp = &vco1;
+uint nodo::get_fichaPos(uint f) const {
+    const uint* temp = &vco1;
     temp+=f;
     return *temp;
     //return *(&vco1 + f);
 }
 
-uint nodo::vaciossonAdyacentes() {
+uint nodo::vaciossonAdyacentes() const {
     if(((vco1>>1) & ~first_col) == vco2)
         return vco1|vco2;
     else if((((vco1<<1) & ~fourth_col) & fullBoard) == vco2)
@@ -94,7 +98,7 @@ uint nodo::vaciossonAdyacentes() {
 ////////////////////////////////////
 void print_board(const uint& b) {
     for(int i=31; i>=0; i--) {
-        std::cout <<((b&(1<<i)) ? " 1 " : " 0 ");
+        std::cout <<((b&(1<<i)) ? "1 " : "0 ");
         if(!(i%4))
             std::cout << ' ';
     }
@@ -106,7 +110,7 @@ void print_bin(const uint &b, std::string s) {
     std::cout  << "  hex: " << std::left << std::hex << std::setw(10) << b <<
     " dec: " << std::dec << std::setw(10) << b << " :  ";
     for(int i=31; i>=0; i--) {
-        std::cout << ((b&(1<<i)) ? "1" : "0");
+        std::cout << ((b&(1<<i)) ? "1 " : "0 ");
         if(!(i%4))
             std::cout << "  ";
     }
@@ -145,6 +149,11 @@ uint clearibitsfromLSB(uint n, const uint &i) {
 uint clearbitsfromMSB(uint n, const uint &i) {
     n = n & ((1 << i) - 1);
     return n;
+}
+
+uint propagateLSB(const uint& n) {
+    uint x = n | (n-1);
+    return x;
 }
 
 uint popcount(const uint &n) {
