@@ -116,9 +116,21 @@ struct nodo {
 };
 
 void print_board(const uint& b);
-
 void print_bin(const uint& b, std::string s="");
 
+//bit manipulation functions BIT HACKS
+//most significant bit
+uint MSB(const uint& n);
+//least significant bit
+uint LSB(const uint& n);
+//clear the least significant bit
+uint clearLSB(const uint& n);
+//clear bits from LSB to the i-th bit
+uint clearibitsfromLSB( uint n, const uint& i);
+//clear bits from MSB to the i-th bit
+uint clearbitsfromMSB(uint n, const uint& i);
+//popcount kerniggan
+uint popcount(const uint& n);
 
 
 #endif //PIEZAS_H

@@ -76,6 +76,7 @@ uint nodo::get_fichaPos(uint f) {
     uint* temp = &vco1;
     temp+=f;
     return *temp;
+    //return *(&vco1 + f);
 }
 
 uint nodo::vaciossonAdyacentes() {
@@ -90,21 +91,22 @@ uint nodo::vaciossonAdyacentes() {
     else
         return 0;
 }
-
+////////////////////////////////////
 void print_board(const uint& b) {
-    for(int i=19; i>=0; i--) {
+    for(int i=31; i>=0; i--) {
         std::cout <<((b&(1<<i)) ? " 1 " : " 0 ");
         if(!(i%4))
-            std::cout << '\n';
+            std::cout << ' ';
     }
     std::cout << '\n';
 }
 
+///////////////////////////////////
 void print_bin(const uint &b, std::string s) {
-    std::cout  << "  hex: " << std::hex << std::setw(12) << b <<
-    " dec: " << std::dec << std::setw(12) << b << " :  ";
+    std::cout  << "  hex: " << std::left << std::hex << std::setw(10) << b <<
+    " dec: " << std::dec << std::setw(10) << b << " :  ";
     for(int i=31; i>=0; i--) {
-        std::cout << ((b&(1<<i)) ? "1 " : "0 ");
+        std::cout << ((b&(1<<i)) ? "1" : "0");
         if(!(i%4))
             std::cout << "  ";
     }
@@ -113,3 +115,44 @@ void print_bin(const uint &b, std::string s) {
 }
 
 
+uint MSB(const uint &n) {
+    uint i = n;
+    // llena de 1s desde el bit más significativo hasta el primer 0
+    i |= (i >> 1);
+    i |= (i >> 2);
+    i |= (i >> 4);
+    i |= (i >> 8);
+    i |= (i >> 16);
+    // suma 1, así solo está seteado una posición más allá del bit más significativo
+    i = i+1;
+    // desplaza a la derecha 1 bit, que es la posición del bit más significativo
+    return (i >> 1);
+}
+
+uint LSB(const uint &n) {
+    return (n & -n); // obtiene el bit menos significativo
+}
+
+uint clearLSB(const uint &n) {
+    return (n & (n - 1)); // limpia el bit menos significativo
+}
+
+uint clearibitsfromLSB(uint n, const uint &i) {
+    n = n & ~((1 << i+1 ) - 1);
+    return n;
+}
+
+uint clearbitsfromMSB(uint n, const uint &i) {
+    n = n & ((1 << i) - 1);
+    return n;
+}
+
+uint popcount(const uint &n) {
+    uint n1 = n;
+    int i = 0;
+    while(n) {
+        n1 &= (n1 - 1); // elimina el bit menos significativo
+        i++;
+    }
+    return i;
+}

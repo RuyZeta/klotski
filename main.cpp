@@ -9,8 +9,6 @@ nodo make_move(const nodo& n) {
     return result;
 }
 
-
-
 int main() {
     nodo n1, n2, n3, n4;
     uint pos[12]  {0x800, 0x400, 0xcc000, 0x22000, 0x220, 0x110, 0x44,
@@ -25,15 +23,14 @@ int main() {
 
     uint a = 234;
     uint b = 456;
-    uint m = 0b100100;
-    print_bin(a, "a:");
-    print_bin((b), "b");
-    print_bin((m), "m");
-    print_bin((a&(~m)) | (b&m), "a&~m | b&m");
+    uint m = 0b100101001100100;
 
-    print_bin( (b&m), "b&m");
-    print_bin(a&(~m), "a&~m");
-
+    print_bin(m, " m");
+    print_bin(MSB(m), "MSB de m: ");
+    print_bin(LSB(m), "LSB de n: ");
+    print_bin(clearLSB(m), "clear LSB de m: ");
+    print_bin(clearibitsfromLSB(m, 9), "clear bits  LSB 9: ");
+    print_bin(clearbitsfromMSB(m, 9), "clear bits MSB 9: ");
 
 
 
