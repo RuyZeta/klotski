@@ -2,12 +2,12 @@
 #include "piezas.h"
 using namespace std;
 
-nodo make_move(const nodo& n) {
-    nodo result;
+uint bloqueGPos[12] = {0x33, 0x33<<1, 0x33<<2,
+                       0x33<<4, 0x33<<5, 0x33<<6,
+                       0x33<<8, 0x33<<9, 0x33<<10,
+                          0x33<<12, 0x33<<13, 0x33<<14};
 
 
-    return result;
-}
 
 int main() {
     nodo n1, n2, n3, n4;
@@ -25,12 +25,10 @@ int main() {
     uint b = 456;
     uint m = 0b10001001010011010000;
 
-    print_bin(m, " m");
-    print_bin(m-1, "m-1");
-    print_bin(m+1, "m+1");
-    print_bin((~m), "~m");
-    print_bin(propagateLSB(m), "m | m-1");
-
-
+    n2.print_board();
+    print_board(n2[pG]);
+    uint g = n2[pG];
+    uint v = ((g>>1) & ~g);
+    print_board(v);
     return 0;
 }

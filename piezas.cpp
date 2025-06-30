@@ -83,24 +83,25 @@ uint nodo::get_fichaPos(uint f) const {
     //return *(&vco1 + f);
 }
 
+//return 2 si son horizontales, 1 si son verticales, 0 si no son adyacentes
 uint nodo::vaciossonAdyacentes() const {
     if(((vco1>>1) & ~first_col) == vco2)
-        return vco1|vco2;
+        return 2;
     else if((((vco1<<1) & ~fourth_col) & fullBoard) == vco2)
-        return vco1|vco2;
+        return 2;
     else if((((vco1<<4) & ~fifth_line)) == vco2)
-        return vco1|vco2;
+        return 1;
     else if((vco1>>4) == vco2)
-        return vco1|vco2;
+        return 1;
     else
         return 0;
 }
 ////////////////////////////////////
 void print_board(const uint& b) {
-    for(int i=31; i>=0; i--) {
+    for(int i=19; i>=0; i--) {
         std::cout <<((b&(1<<i)) ? "1 " : "0 ");
         if(!(i%4))
-            std::cout << ' ';
+            std::cout << '\n';
     }
     std::cout << '\n';
 }
