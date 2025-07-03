@@ -2,20 +2,8 @@
 #include "piezas.h"
 using namespace std;
 
-uint bloqueGPos[12] = {
-                        0x33,       0x33<<1,    0x33<<2,
-                        0x33<<4,    0x33<<5,    0x33<<6,
-                        0x33<<8,    0x33<<9,    0x33<<10,
-                        0x33<<12,   0x33<<13,   0x33<<14
-};
 
-uint maskGmoves(const uint& g) {
-    uint derecha = ((g>>1) & (~g)) & (~first_col);
-    uint izquierda = ((g<<1) & (~g)) & (~fourth_col);
-    uint abajo = (g>>4) & (~g);
-    uint arriba = ((g<<4) & (~g)) & (fullBoard);
-    return (derecha | izquierda | abajo | arriba);
-}
+
 
 int main() {
     nodo n1, n2, n3, n4;
@@ -35,8 +23,9 @@ int main() {
 
 
     uint g= 0;
-    for(int i = 0; i < 12; i++) {
-        print_board(maskGmoves( bloqueGPos[i]));
+    for(int i = 0; i < 16; i++) {
+        cout << "i :" << i << endl;
+        print_board(maskmoves( bloqueVpos[i]));
         cin.get();
 
     }

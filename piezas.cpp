@@ -96,8 +96,12 @@ uint nodo::vaciossonAdyacentes() const {
     else
         return 0;
 }
+
+////////////////////////////////////
 ////////////////////////////////////
 void print_board(const uint& b) {
+    std::cout  << "hex: " << std::hex << b <<
+               " dec: " << std::dec << b << std::endl;
     for(int i=19; i>=0; i--) {
         std::cout <<((b&(1<<i)) ? "1 " : "0 ");
         if(!(i%4))
@@ -106,7 +110,7 @@ void print_board(const uint& b) {
     std::cout << '\n';
 }
 
-///////////////////////////////////
+
 void print_bin(const uint &b, std::string s) {
     std::cout  << "  hex: " << std::left << std::hex << std::setw(10) << b <<
     " dec: " << std::dec << std::setw(10) << b << " :  ";
@@ -119,6 +123,19 @@ void print_bin(const uint &b, std::string s) {
 
 }
 
+
+
+uint maskmoves(const uint& g) {
+    uint derecha = ((g>>1) & (~g)) & (~first_col);
+    uint izquierda = ((g<<1) & (~g)) & (~fourth_col);
+    uint abajo = (g>>4) & (~g);
+    uint arriba = ((g<<4) & (~g)) & (fullBoard);
+    return (derecha | izquierda | abajo | arriba);
+}
+
+////////////////////////////////////////////////////
+///////////////////////////////////////////////////
+///////////// bits hacks /////////////////////////
 
 uint MSB(const uint &n) {
     uint i = n;
