@@ -27,11 +27,9 @@ int main() {
         cout << "i :" << i << endl;
         print_board(maskmoves( bloqueVpos[i]));
         cin.get();
-
     }
-
-
     cin.get();
 
     return 0;
 }
+

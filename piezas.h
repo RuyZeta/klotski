@@ -38,6 +38,7 @@ static uint first_col = 0x88888888;
 static uint second_col = 0x44444444;
 static uint third_col = 0x22222222;
 static uint fourth_col = 0x11111111;
+
 static uint bloqueG = 0x66000;
 static uint bloqueV1 = 0x88000;
 static uint bloqueV2 = 0x11000;
@@ -50,8 +51,6 @@ static uint small4 = 0x20;
 static uint horiz = 0x600;
 static uint vacio1 = 0x4;
 static uint vacio2 = 0x2;
-
-
 
 static uint bloqueGpos[12] = {
         0x33,       0x33<<1,    0x33<<2,
@@ -68,11 +67,10 @@ static uint bloqueHpos[15] {
 };
 
 static uint bloqueVpos[16] {
-        0x11,     0x11<<1,    0x11<<2, 0x11<<3,
-        0x11 << 4, 0x11 << 5, 0x11 << 6, 0x11 << 7,
-        0x11 << 8, 0x11 << 9, 0x11 << 10, 0x11 << 11,
+        0x11,       0x11<<1,    0x11<<2,    0x11<<3,
+        0x11 << 4,  0x11 << 5,  0x11 << 6,  0x11 << 7,
+        0x11 << 8,  0x11 << 9,  0x11 << 10, 0x11 << 11,
         0x11 << 12, 0x11 << 13, 0x11 << 14, 0x11 << 15
-
 };
 
 #define sq20    (uno<<19)
@@ -99,6 +97,7 @@ static uint bloqueVpos[16] {
 struct nodo {
     uint vco1, vco2, G, V1, V2, V3, V4, H, s1, s2, s3, s4;
     nodo();
+    nodo(const nodo& n);
     void print_board() const;
     char letra_bloque(const uint& b) const;
     void set_board(uint* bd);
@@ -107,6 +106,30 @@ struct nodo {
     uint& operator[] (const uint& index) {
         assert((index < TotFichas) && "error de limite array fichas");
         return *(&vco1+index);
+    }
+    nodo& operator=(const nodo& n) {
+        if(this != &n) {
+            vco1 = n.vco1;
+            vco2 = n.vco2;
+            G = n.G;
+            V1 = n.V1;
+            V2 = n.V2;
+            V3 = n.V3;
+            V4 = n.V4;
+            H = n.H;
+            s1 = n.s1;
+            s2 = n.s2;
+            s3 = n.s3;
+            s4 = n.s4;
+        }
+        return *this;
+    }
+    bool operator==(const nodo& n) const {
+        return (vco1 == n.vco1 && vco2 == n.vco2 &&
+                G == n.G && V1 == n.V1 && V2 == n.V2 &&
+                V3 == n.V3 && V4 == n.V4 && H == n.H &&
+                s1 == n.s1 && s2 == n.s2 && s3 == n.s3 &&
+                s4 == n.s4);
     }
 };
 

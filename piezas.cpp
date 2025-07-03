@@ -21,6 +21,21 @@ nodo::nodo() {
     s4 = small4;
 }
 
+nodo::nodo(const nodo &n) {
+    vco1 = n.vco1;
+    vco2 = n.vco2;
+    G = n.G;
+    V1 = n.V1;
+    V2 = n.V2;
+    V3 = n.V3;
+    V4 = n.V4;
+    H = n.H;
+    s1 = n.s1;
+    s2 = n.s2;
+    s3 = n.s3;
+    s4 = n.s4;
+}
+
 void nodo::print_board() const {
     for(int i=19; i>=0; i--) {
         std::cout << " " << letra_bloque(uno<<i) << " ";
@@ -29,8 +44,6 @@ void nodo::print_board() const {
     }
     std::cout << '\n';
 }
-
-
 
 char nodo::letra_bloque(const uint &b) const {
     if(b&vco1)
@@ -120,10 +133,7 @@ void print_bin(const uint &b, std::string s) {
             std::cout << "  ";
     }
     std::cout << "   " << s << std::endl;
-
 }
-
-
 
 uint maskmoves(const uint& g) {
     uint derecha = ((g>>1) & (~g)) & (~first_col);
