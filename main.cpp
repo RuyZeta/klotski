@@ -21,14 +21,48 @@ int main() {
     uint b = 456;
     uint m = 0b10001001010011010000;
 
+    uint vacios = n3.vco1|n3.vco2;
+    uint va = n3.vaciossonAdyacentes();
 
-    uint g= 0;
-    for(int i = 0; i < 16; i++) {
-        cout << "i :" << i << endl;
-        print_board(maskmoves( bloqueVpos[i]));
-        cin.get();
+    n3.print_board();
+
+    if(va == 2) {
+        uint a = arriba(vacios);
+        if(a == n3.H)
+            print_board(n3.H);
+        if((a!=0) && (a|n3.G) == n3.G) {
+            print_board(n3.G);
+        }
+        uint b = abajo(vacios);
+        if(b == n3.H)
+            print_board(n3.H);
+        if((b!=0) && ((b|n3.G) == n3.G)) {
+            print_board(n3.G);
+        }
     }
-    cin.get();
+    else if(va == 1) {
+        uint iz = izquierda(vacios);
+         for(int i=pV1; i<=pV4; i++) {
+            if(iz == n3[i])
+                print_board(n3[i]);
+        }
+        if((iz != 0) && (n3.G == (iz|n3.G))) {
+            cout << "izquierda: " << endl;
+            print_board(n3.G);
+        }
+        uint de = derecha(vacios);
+        for(int i=pV1; i<=pV4; i++) {
+            if(de == n3[i])
+                print_board(n3[i]);
+        }
+        if((de != 0) && (n3.G == (de|n3.G))) {
+            print_board(n3.G);
+        }
+
+    }
+
+
+
 
     return 0;
 }

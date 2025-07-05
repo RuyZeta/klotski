@@ -73,6 +73,11 @@ static uint bloqueVpos[16] {
         0x11 << 12, 0x11 << 13, 0x11 << 14, 0x11 << 15
 };
 
+#define derecha(g)     (((g>>1) & (~g)) & (~first_col))
+#define izquierda(g)    (((g<<1) & (~g)) & (~fourth_col))
+#define abajo(g)      ((g>>4) & (~g))
+#define arriba(g)    (((g<<4) & (~g)) & (fullBoard))
+
 #define sq20    (uno<<19)
 #define sq19    (uno<<18)
 #define sq18    (uno<<17)
