@@ -108,7 +108,7 @@ struct nodo {
     void set_board(uint* bd);
     uint get_fichaPos(uint f) const;
     uint vaciossonAdyacentes() const;
-    uint& operator[] (const uint& index) {
+    const uint& operator[] (const uint& index) const {
         assert((index < TotFichas) && "error de limite array fichas");
         return *(&vco1+index);
     }
