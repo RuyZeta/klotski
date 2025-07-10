@@ -27,6 +27,9 @@ typedef uint board;
 #define ps2  9
 #define ps3  10
 #define ps4  11
+
+
+
 //board and tiles definitions for initials positions
 static uint fullBoard = 0xfffff;
 static uint first_line = 0xf;
