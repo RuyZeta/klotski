@@ -110,6 +110,186 @@ uint nodo::vaciossonAdyacentes() const {
         return 0;
 }
 
+/////////////////////////////////////////////
+/// clase busca
+///
+
+
+
+busca::busca(const nodo &n) {
+    raiz = new nodo(n);
+}
+
+void busca::hace_movida(const nodo& n) {
+    uint vacios = n.vco1|n.vco2;
+    uint va = n.vaciossonAdyacentes();
+
+    if(va == 2) { //horizontales
+        uint a = arriba(vacios);
+        if(a == n.H) { //la barra horizontal está arriba de vacios
+            nodo* nod = new nodo(n);
+            nod->vco1 = arriba(n.vco1);
+            nod->vco2 = arriba(n.vco2);
+            nod->H = vacios;
+            movidas.push(nod);
+        }
+        if((a!=0) && (a|n.G) == n.G) {  // el bloque grande está arriba de vacios
+            nodo* nod = new nodo(n);
+            nod->vco1 = arriba(arriba(n.vco1));
+            nod->vco2 = arriba(arriba(n.vco2));
+            nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
+            movidas.push(nod);
+        }
+        uint b = abajo(vacios);
+        if(b == n.H) { //barra horizontal está abajo de vacios
+            nodo* nod = new nodo(n);
+            nod->vco1 = abajo(n.vco1);
+            nod->vco2 = abajo(n.vco2);
+            nod->H = vacios;
+            movidas.push(nod);
+        }
+
+        if((b!=0) && ((b|n.G) == n.G)) { //el bloque grande está abajo de vacios
+            nodo* nod = new nodo(n);
+            nod->vco1 = abajo(abajo(n.vco1));
+            nod->vco2 = abajo(abajo(n.vco2));
+            nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
+            movidas.push(nod);
+        }
+    }
+    else if(va == 1) {
+        // verticales
+        uint iz = izquierda(vacios);
+        uint de = derecha(vacios);
+        for(int i=pV1; i<=pV4; i++) {
+            //las barras verticales están a la izquierda de vacios
+            if(iz == n[i]) {
+                nodo* nod = new nodo(n);
+                nod->vco1 = izquierda(n.vco1);
+                nod->vco2 = izquierda(n.vco2);
+                *(&nod->vco1+i) = vacios; // resulta?
+                movidas.push(nod);
+            }
+            if(de == n[i]) {
+                nodo* nod = new nodo(n);
+                nod->vco1 = derecha(n.vco1);
+                nod->vco2 = derecha(n.vco2);
+                *(&nod->vco1+i) = vacios;
+                movidas.push(nod);
+            }
+        }
+        if((iz != 0) && (n.G == (iz|n.G))) { // el bloque está a la izquierda de vacios
+                nodo* nod = new nodo(n);
+                nod->vco1 = izquierda(izquierda(n.vco1));
+                nod->vco2 = izquierda(izquierda(n.vco2));
+                nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
+                movidas.push(nod);
+        }
+
+        if((de != 0) && (n.G == (de|n.G))) { // el bloque está a la derecha de vacios verticalmente
+                nodo* nod = new nodo(n);
+                nod->vco1 = derecha(derecha(n.vco1));
+                nod->vco2 = derecha(derecha(n.vco2));
+                nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
+                movidas.push(nod);
+        }
+
+    }
+    //////////////////////////////// todos los vacios de uno, primero s1 y después s2. No están juntos
+
+    uint movearriba = 0;
+    uint moveabajo = 0;
+    uint moveizq = 0; //izquierda derecha incluye la horizontal y las pequeñas
+    uint moveder = 0;
+
+    for (int j = 0; j<pG; j++) {
+        movearriba = arriba(n[j]);
+        moveabajo = abajo(n[j]);
+        moveizq = izquierda(n[j]);
+        moveder = derecha(n[j]);
+        for (int i=pV1; i<=ps4; i++) {
+            if((i != pH) && ((movearriba!=0) && ((movearriba|n[i]) == n[i]))) {
+                ////// arriba del vacio están las barras verticales o los cuadrados chicos ////
+                if (i<pH) { // barras verticales arriba
+                    nodo* nod = new nodo(n);
+                    *(&nod->vco1+j) = arriba(arriba(n[j]));
+                    *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
+                    movidas.push(nod);
+                }
+                if (i>pH) { // un cuadrado chico arriba de vacio
+                    nodo* nod = new nodo(n);
+                    *(&nod->vco1+j) = arriba(n[j]);
+                    *(&nod->vco1+i) = n[j];
+                    movidas.push(nod);
+                }
+            }
+            if((i != pH) && ((moveabajo!=0) && ((moveabajo|n[i]) == n[i]))) { //barras verticales abajo
+                if (i<pH) { // barras verticales abajo
+                    nodo* nod = new nodo(n);
+                    *(&nod->vco1+j) = abajo(abajo(n[j]));
+                    *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
+                    movidas.push(nod);
+                }
+                if (i>pH) { // un cuadrado chico abajo de vacio
+                    nodo* nod = new nodo(n);
+                    *(&nod->vco1+j) = abajo(n[j]);
+                    *(&nod->vco1+i) = n[j];
+                    movidas.push(nod);
+                }
+            }
+        }
+
+        for (int i=pH; i<=ps4; i++) {
+            if((moveizq!=0) && ((moveizq|n[i]) == n[i])) {
+                    if (i==pH) { //barra horizontal a la izquierda
+                        nodo* nod = new nodo(n);
+                        *(&nod->vco1+j) = izquierda(izquierda(n[j]));
+                        *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
+                        movidas.push(nod);
+                    }
+                    if (i > pH) { // cuadrados chicos a la izquierda
+                        nodo* nod = new nodo(n);
+                        *(&nod->vco1+j) = izquierda(n[j]);
+                        *(&nod->vco1+i) = n[j];
+                        movidas.push(nod);
+                    }
+                }
+                if((moveder!=0) && ((moveder|n[i]) == n[i])) {
+                    if (i==pH) { //barra horizontal a la derecha
+                        nodo* nod = new nodo(n);
+                        *(&nod->vco1+j) = derecha(derecha(n[j]));
+                        *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
+                        movidas.push(nod);
+                    }
+                    if (i > pH) { // cuadrados chicos a la derecha
+                        nodo* nod = new nodo(n);
+                        *(&nod->vco1+j) = derecha(n[j]);
+                        *(&nod->vco1+i) = n[j];
+                        movidas.push(nod);
+                    }
+                }
+            }
+    }
+}
+
+void busca::run() {
+    hace_movida(*raiz);
+    while (!movidas.empty()) {
+        nodo *temp = movidas.front();
+        movidas.pop();
+        if (temp->G == GObjetivo) {
+            std::cout << "encontrado" << std::endl;
+            break;
+        }
+        else {
+            temp->print_board();
+            std::cin.get();
+            hace_movida(*temp);
+        }
+    }
+}
+
+
 ////////////////////////////////////
 ////////////////////////////////////
 void print_board(const uint& b) {
@@ -134,6 +314,8 @@ void print_bin(const uint &b, std::string s) {
     }
     std::cout << "   " << s << std::endl;
 }
+
+
 
 uint maskmoves(const uint& g) {
     uint derecha = ((g>>1) & (~g)) & (~first_col);

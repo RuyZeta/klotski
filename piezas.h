@@ -9,6 +9,8 @@
 #include <string>
 #include <cassert>
 #include <iomanip>
+#include <vector>
+#include <queue>
 
 typedef unsigned int uint;
 
@@ -28,7 +30,7 @@ typedef uint board;
 #define ps3  10
 #define ps4  11
 
-
+#define GObjetivo 0x66
 
 //board and tiles definitions for initials positions
 static uint fullBoard = 0xfffff;
@@ -140,6 +142,25 @@ struct nodo {
                 s4 == n.s4);
     }
 };
+
+typedef std::vector<uint> lista_pos;
+typedef std::vector<nodo *> lista_nodos;
+typedef std::queue<nodo *> cola_movidas;
+
+
+
+class busca {
+cola_movidas movidas;
+nodo* raiz;
+public:
+    busca(const nodo& n);
+    ~busca(){};
+
+    void hace_movida(const nodo& n); //crea la movida y la pone en la lista de movidas
+    void run();
+
+};
+
 
 uint maskmoves(const uint& g);
 void print_board(const uint& b);
