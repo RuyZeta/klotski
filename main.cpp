@@ -1,6 +1,7 @@
 #include <iostream>
 #include "piezas.h"
 #include <vector>
+#include <bitset>
 
 using namespace std;
 
@@ -194,10 +195,6 @@ int main() {
 
     busca sol(n1);
     sol.run();
-
-
-
-
 
     return 0;
 }

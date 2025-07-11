@@ -34,6 +34,8 @@ nodo::nodo(const nodo &n) {
     s2 = n.s2;
     s3 = n.s3;
     s4 = n.s4;
+    padre = n.padre;
+    deep = n.deep;
 }
 
 void nodo::print_board() const {
@@ -110,6 +112,21 @@ uint nodo::vaciossonAdyacentes() const {
         return 0;
 }
 
+// clave para el mapa de nodos
+uint nodo::hkey() const {
+    uint key = 0;
+    key |= LSB((ClearMSB(ClearMSB(G))));
+    for(int i=pV1; i<=pV4; i++) {
+        key |= ClearMSB(*(&vco1+i));
+    }
+    key |= clearLSB(H);
+    for(int i=ps1; i<=ps4; i++)
+        key |= *(&vco1+i);
+
+    return key;
+
+}
+
 /////////////////////////////////////////////
 /// clase busca
 ///
@@ -121,6 +138,7 @@ busca::busca(const nodo &n) {
 }
 
 void busca::hace_movida(const nodo& n) {
+    rev.insert({&(n)->hkey(), &n});
     uint vacios = n.vco1|n.vco2;
     uint va = n.vaciossonAdyacentes();
 
@@ -276,16 +294,18 @@ void busca::run() {
     hace_movida(*raiz);
     while (!movidas.empty()) {
         nodo *temp = movidas.front();
+
         movidas.pop();
         if (temp->G == GObjetivo) {
             std::cout << "encontrado" << std::endl;
             break;
         }
-        else {
-            temp->print_board();
-            std::cin.get();
+
+        temp->print_board();
+        std::cin.get();
+        auto it = rev.find(temp->hkey());
+        if(it == rev.end())
             hace_movida(*temp);
-        }
     }
 }
 
@@ -341,6 +361,21 @@ uint MSB(const uint &n) {
     i = i+1;
     // desplaza a la derecha 1 bit, que es la posición del bit más significativo
     return (i >> 1);
+}
+
+uint ClearMSB(const uint &n) {
+    uint i = n;
+    // llena de 1s desde el bit más significativo hasta el primer 0
+    i |= (i >> 1);
+    i |= (i >> 2);
+    i |= (i >> 4);
+    i |= (i >> 8);
+    i |= (i >> 16);
+
+    // suma 1, así solo está seteado una posición más allá del bit más significativo
+    i = i+1;
+    // desplaza a la derecha 1 bit, que es la posición del bit más significativo
+    return (n & ~(i >> 1));
 }
 
 uint LSB(const uint &n) {

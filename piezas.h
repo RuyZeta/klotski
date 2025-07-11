@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 
 typedef unsigned int uint;
 
@@ -83,6 +84,7 @@ static uint bloqueVpos[16] {
 #define abajo(g)      ((g>>4) & (~g))
 #define arriba(g)    (((g<<4) & (~g)) & (fullBoard))
 
+
 #define sq20    (uno<<19)
 #define sq19    (uno<<18)
 #define sq18    (uno<<17)
@@ -106,6 +108,8 @@ static uint bloqueVpos[16] {
 
 struct nodo {
     uint vco1, vco2, G, V1, V2, V3, V4, H, s1, s2, s3, s4;
+    nodo *padre;
+    uint deep;
     nodo();
     nodo(const nodo& n);
     void print_board() const;
@@ -113,6 +117,7 @@ struct nodo {
     void set_board(uint* bd);
     uint get_fichaPos(uint f) const;
     uint vaciossonAdyacentes() const;
+    uint hkey() const;
     const uint& operator[] (const uint& index) const {
         assert((index < TotFichas) && "error de limite array fichas");
         return *(&vco1+index);
@@ -131,6 +136,8 @@ struct nodo {
             s2 = n.s2;
             s3 = n.s3;
             s4 = n.s4;
+            padre = n.padre;
+            deep = n.deep;
         }
         return *this;
     }
@@ -146,15 +153,17 @@ struct nodo {
 typedef std::vector<uint> lista_pos;
 typedef std::vector<nodo *> lista_nodos;
 typedef std::queue<nodo *> cola_movidas;
+typedef std::unordered_map<uint, nodo *> mapa_nodos;
 
 
 
 class busca {
-cola_movidas movidas;
-nodo* raiz;
+    cola_movidas movidas;
+    mapa_nodos rev;
+    nodo* raiz;
 public:
     busca(const nodo& n);
-    ~busca(){};
+    ~busca(){delete raiz;};
 
     void hace_movida(const nodo& n); //crea la movida y la pone en la lista de movidas
     void run();
@@ -169,6 +178,8 @@ void print_bin(const uint& b, std::string s="");
 //bit manipulation functions BIT HACKS
 //most significant bit
 uint MSB(const uint& n);
+//clear the most significant bit
+uint ClearMSB(const uint& n);
 //least significant bit
 uint LSB(const uint& n);
 //clear the least significant bit
