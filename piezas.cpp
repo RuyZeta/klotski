@@ -19,6 +19,8 @@ nodo::nodo() {
     s2 = small2;
     s3 = small3;
     s4 = small4;
+    padre = nullptr;
+    deep = 0;
 }
 
 nodo::nodo(const nodo &n) {
@@ -39,6 +41,7 @@ nodo::nodo(const nodo &n) {
 }
 
 void nodo::print_board() const {
+    std::cout << " hash key: " << hkey() << "  Deep: " << deep << " euristica : " << euristica1() << std::endl;
     for(int i=19; i>=0; i--) {
         std::cout << " " << letra_bloque(uno<<i) << " ";
         if(!(i%4))
@@ -124,7 +127,29 @@ uint nodo::hkey() const {
         key |= *(&vco1+i);
 
     return key;
+}
 
+uint nodo::euristica2() const {
+    uint filas = first_line|second_line;
+    uint columnas = fourth_col|third_col;
+    int posx = 0;
+    int posy = 0;
+    int i=0;
+    int j=0;
+    for ( i=0; i<4; ++i) {
+        for ( j=0; j<3; ++j)
+            if ((((columnas<<j)&(filas<<(4*i))) | G) == G) {
+                posx = j;
+                posy = i;
+                break;
+            }
+    }
+    std::cout << posx << " " << posy << std::endl;
+    if (posy == 3)
+        posy+=2;
+    else if (posy == 2)
+        posy+=1;
+    return abs(0-posy) + abs(1-posx);
 }
 
 /////////////////////////////////////////////
@@ -137,8 +162,8 @@ busca::busca(const nodo &n) {
     raiz = new nodo(n);
 }
 
-void busca::hace_movida(const nodo& n) {
-    rev.insert({&(n)->hkey(), &n});
+void busca::hace_movida(nodo& n) {
+    rev.insert({n.hkey(), &n});
     uint vacios = n.vco1|n.vco2;
     uint va = n.vaciossonAdyacentes();
 

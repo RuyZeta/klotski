@@ -118,6 +118,7 @@ struct nodo {
     uint get_fichaPos(uint f) const;
     uint vaciossonAdyacentes() const;
     uint hkey() const;
+    uint euristica1() const;
     const uint& operator[] (const uint& index) const {
         assert((index < TotFichas) && "error de limite array fichas");
         return *(&vco1+index);
@@ -165,7 +166,7 @@ public:
     busca(const nodo& n);
     ~busca(){delete raiz;};
 
-    void hace_movida(const nodo& n); //crea la movida y la pone en la lista de movidas
+    void hace_movida(nodo& n); //crea la movida y la pone en la lista de movidas
     void run();
 
 };
