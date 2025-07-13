@@ -12,6 +12,7 @@
 #include <vector>
 #include <queue>
 #include <unordered_map>
+#include <stack>
 
 typedef unsigned int uint;
 
@@ -58,27 +59,8 @@ static uint horiz = 0x600;
 static uint vacio1 = 0x4;
 static uint vacio2 = 0x2;
 
-static uint bloqueGpos[12] = {
-        0x33,       0x33<<1,    0x33<<2,
-        0x33<<4,    0x33<<5,    0x33<<6,
-        0x33<<8,    0x33<<9,    0x33<<10,
-        0x33<<12,   0x33<<13,   0x33<<14
-};
-static uint bloqueHpos[15] {
-        0x3,       0x3<<1,     0x3<<2,
-        0x3<<4,    0x3<<5,     0x3<<6,
-        0x3<<8,    0x3<<9,     0x3<<10,
-        0x3<<12,   0x3<<13,    0x3<<14,
-        0x3<<16,   0x3<<17,    0x3<<18
-};
 
-static uint bloqueVpos[16] {
-        0x11,       0x11<<1,    0x11<<2,    0x11<<3,
-        0x11 << 4,  0x11 << 5,  0x11 << 6,  0x11 << 7,
-        0x11 << 8,  0x11 << 9,  0x11 << 10, 0x11 << 11,
-        0x11 << 12, 0x11 << 13, 0x11 << 14, 0x11 << 15
-};
-
+//// macros de ayuda para el movimiento de fichas
 #define derecha(g)     (((g>>1) & (~g)) & (~first_col))
 #define izquierda(g)    (((g<<1) & (~g)) & (~fourth_col))
 #define abajo(g)      ((g>>4) & (~g))
@@ -112,13 +94,13 @@ struct nodo {
     uint deep;
     nodo();
     nodo(const nodo& n);
-    void print_board() const;
+    void print_board(const int& size = 0) const;
     char letra_bloque(const uint& b) const;
     void set_board(uint* bd);
     uint get_fichaPos(uint f) const;
     uint vaciossonAdyacentes() const;
     uint hkey() const;
-    uint euristica1() const;
+    int euristica2() const;
     const uint& operator[] (const uint& index) const {
         assert((index < TotFichas) && "error de limite array fichas");
         return *(&vco1+index);
@@ -151,21 +133,45 @@ struct nodo {
     }
 };
 
+/////////////////////
+/// clase para la comparacion de nodos en la cola de prioridad
+class compare {
+public:
+    bool operator() (nodo* a, nodo* b) {
+        return (a->euristica2()) > (b->euristica2() ); //si es mayor que, los menores valores tienen prioridad
+    }
+};
+
+/////////
+///tipos de datos
 typedef std::vector<uint> lista_pos;
 typedef std::vector<nodo *> lista_nodos;
 typedef std::queue<nodo *> cola_movidas;
 typedef std::unordered_map<uint, nodo *> mapa_nodos;
+typedef std::priority_queue<nodo*, std::vector<nodo*>, compare> Cola_Prioridad;
+typedef std::stack<nodo *> pila_nodos;
 
 
 
+////////////
+///la clase solucion de busqueda
 class busca {
-    cola_movidas movidas;
+    Cola_Prioridad movidas;
+    pila_nodos pilan;
     mapa_nodos rev;
     nodo* raiz;
 public:
+    busca(){raiz = new nodo();}
     busca(const nodo& n);
     ~busca(){delete raiz;};
-
+    void insert_nodo_sin_busqueda(const nodo& n) const;
+    void insert_nodo(const nodo& n);
+    void print_movidas()  {
+        while(!movidas.empty()) {
+            movidas.top()->print_board();
+            movidas.pop();
+        }
+    }
     void hace_movida(nodo& n); //crea la movida y la pone en la lista de movidas
     void run();
 
@@ -194,4 +200,25 @@ uint popcount(const uint& n);
 //propagate the least significant bit
 uint propagateLSB(const uint& n);
 
+
+static uint bloqueGpos[12] = {
+    0x33,       0x33<<1,    0x33<<2,
+    0x33<<4,    0x33<<5,    0x33<<6,
+    0x33<<8,    0x33<<9,    0x33<<10,
+    0x33<<12,   0x33<<13,   0x33<<14
+};
+static uint bloqueHpos[15] {
+    0x3,       0x3<<1,     0x3<<2,
+    0x3<<4,    0x3<<5,     0x3<<6,
+    0x3<<8,    0x3<<9,     0x3<<10,
+    0x3<<12,   0x3<<13,    0x3<<14,
+    0x3<<16,   0x3<<17,    0x3<<18
+};
+
+static uint bloqueVpos[16] {
+    0x11,       0x11<<1,    0x11<<2,    0x11<<3,
+    0x11 << 4,  0x11 << 5,  0x11 << 6,  0x11 << 7,
+    0x11 << 8,  0x11 << 9,  0x11 << 10, 0x11 << 11,
+    0x11 << 12, 0x11 << 13, 0x11 << 14, 0x11 << 15
+};
 #endif //PIEZAS_H

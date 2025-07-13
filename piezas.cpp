@@ -40,8 +40,9 @@ nodo::nodo(const nodo &n) {
     deep = n.deep;
 }
 
-void nodo::print_board() const {
-    std::cout << " hash key: " << hkey() << "  Deep: " << deep << " euristica : " << euristica1() << std::endl;
+void nodo::print_board(const int& size) const {
+    std::cout << "hash key: " << hkey() << "   Deep: " << deep << "   euristica : " << euristica2() <<
+        "  Size Queue: " << size << std::endl;
     for(int i=19; i>=0; i--) {
         std::cout << " " << letra_bloque(uno<<i) << " ";
         if(!(i%4))
@@ -129,41 +130,64 @@ uint nodo::hkey() const {
     return key;
 }
 
-uint nodo::euristica2() const {
+int nodo::euristica2() const {
     uint filas = first_line|second_line;
     uint columnas = fourth_col|third_col;
-    int posx = 0;
-    int posy = 0;
-    int i=0;
-    int j=0;
-    for ( i=0; i<4; ++i) {
-        for ( j=0; j<3; ++j)
-            if ((((columnas<<j)&(filas<<(4*i))) | G) == G) {
-                posx = j;
-                posy = i;
-                break;
-            }
-    }
-    std::cout << posx << " " << posy << std::endl;
-    if (posy == 3)
-        posy+=2;
-    else if (posy == 2)
-        posy+=1;
-    return abs(0-posy) + abs(1-posx);
+    int deltaH = 0;
+    int deltavacio = 0;
+    int deltalado = 0;
+    int posG = 0;
+    int posV = 0;
+    int down = abajo(G);
+    int left = izquierda(G);
+    int right = derecha(G);
+
+    if( (down != 0) && (down == (vco1|vco2)))
+        deltavacio = -16;
+    if((left != 0) && (left == (vco1|vco2)))
+        deltavacio = -16;
+    if((right != 0) && (right == (vco1|vco2)))
+        deltavacio = -16;
+
+    for(int i=0; i<4; i++)
+        if(((filas<<(i*4)) & G) == G)
+            posG = i*10;
+
+    if((columnas & G) == G)
+        deltalado = -8;
+
+    if(((columnas<<2) & G) == G)
+        deltalado = -8;
+
+    for(int k = 0; k<5; k++)
+        if((H & (fifth_line>>(k*4))) == H)
+            deltaH = k*2;
+    return posG+ deltaH + deltavacio + deltalado;
 }
 
 /////////////////////////////////////////////
 /// clase busca
 ///
 
-
-
 busca::busca(const nodo &n) {
     raiz = new nodo(n);
+
+}
+
+void busca::insert_nodo(const nodo &n) {
+    if(rev.find(n.hkey()) == rev.end()) {
+        nodo* temp = new nodo(n);
+        movidas.push(temp);
+        rev.insert({temp->hkey(), temp});
+    }
+    else {
+        //std::cout << "nodo repetido" << std::endl;
+    }
 }
 
 void busca::hace_movida(nodo& n) {
-    rev.insert({n.hkey(), &n});
+
+
     uint vacios = n.vco1|n.vco2;
     uint va = n.vaciossonAdyacentes();
 
@@ -171,33 +195,45 @@ void busca::hace_movida(nodo& n) {
         uint a = arriba(vacios);
         if(a == n.H) { //la barra horizontal está arriba de vacios
             nodo* nod = new nodo(n);
+            nod->padre = &n;
+            nod->deep++;
             nod->vco1 = arriba(n.vco1);
             nod->vco2 = arriba(n.vco2);
             nod->H = vacios;
-            movidas.push(nod);
+            if(rev.find(nod->hkey()) == rev.end())
+                movidas.push(nod);
         }
         if((a!=0) && (a|n.G) == n.G) {  // el bloque grande está arriba de vacios
             nodo* nod = new nodo(n);
+            nod->padre = &n;
+            nod->deep++;
             nod->vco1 = arriba(arriba(n.vco1));
             nod->vco2 = arriba(arriba(n.vco2));
             nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
-            movidas.push(nod);
+            if(rev.find(nod->hkey()) == rev.end())
+                movidas.push(nod);
         }
         uint b = abajo(vacios);
         if(b == n.H) { //barra horizontal está abajo de vacios
             nodo* nod = new nodo(n);
+            nod->padre = &n;
+            nod->deep++;
             nod->vco1 = abajo(n.vco1);
             nod->vco2 = abajo(n.vco2);
             nod->H = vacios;
-            movidas.push(nod);
+            if(rev.find(nod->hkey()) == rev.end())
+                movidas.push(nod);
         }
 
         if((b!=0) && ((b|n.G) == n.G)) { //el bloque grande está abajo de vacios
             nodo* nod = new nodo(n);
+            nod->padre = &n;
+            nod->deep++;
             nod->vco1 = abajo(abajo(n.vco1));
             nod->vco2 = abajo(abajo(n.vco2));
             nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
-            movidas.push(nod);
+            if(rev.find(nod->hkey()) == rev.end())
+                movidas.push(nod);
         }
     }
     else if(va == 1) {
@@ -208,32 +244,44 @@ void busca::hace_movida(nodo& n) {
             //las barras verticales están a la izquierda de vacios
             if(iz == n[i]) {
                 nodo* nod = new nodo(n);
+                nod->padre = &n;
+                nod->deep++;
                 nod->vco1 = izquierda(n.vco1);
                 nod->vco2 = izquierda(n.vco2);
                 *(&nod->vco1+i) = vacios; // resulta?
-                movidas.push(nod);
+                if(rev.find(nod->hkey()) == rev.end())
+                    movidas.push(nod);
             }
             if(de == n[i]) {
                 nodo* nod = new nodo(n);
+                nod->padre = &n;
+                nod->deep++;
                 nod->vco1 = derecha(n.vco1);
                 nod->vco2 = derecha(n.vco2);
                 *(&nod->vco1+i) = vacios;
-                movidas.push(nod);
+                if(rev.find(nod->hkey()) == rev.end())
+                    movidas.push(nod);
             }
         }
         if((iz != 0) && (n.G == (iz|n.G))) { // el bloque está a la izquierda de vacios
-                nodo* nod = new nodo(n);
-                nod->vco1 = izquierda(izquierda(n.vco1));
-                nod->vco2 = izquierda(izquierda(n.vco2));
-                nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
+            nodo* nod = new nodo(n);
+            nod->padre = &n;
+            nod->deep++;
+            nod->vco1 = izquierda(izquierda(n.vco1));
+            nod->vco2 = izquierda(izquierda(n.vco2));
+            nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
+            if(rev.find(nod->hkey()) == rev.end())
                 movidas.push(nod);
         }
 
         if((de != 0) && (n.G == (de|n.G))) { // el bloque está a la derecha de vacios verticalmente
-                nodo* nod = new nodo(n);
-                nod->vco1 = derecha(derecha(n.vco1));
-                nod->vco2 = derecha(derecha(n.vco2));
-                nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
+            nodo* nod = new nodo(n);
+            nod->padre = &n;
+            nod->deep++;
+            nod->vco1 = derecha(derecha(n.vco1));
+            nod->vco2 = derecha(derecha(n.vco2));
+            nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
+            if(rev.find(nod->hkey()) == rev.end())
                 movidas.push(nod);
         }
 
@@ -255,29 +303,41 @@ void busca::hace_movida(nodo& n) {
                 ////// arriba del vacio están las barras verticales o los cuadrados chicos ////
                 if (i<pH) { // barras verticales arriba
                     nodo* nod = new nodo(n);
+                    nod->padre = &n;
+                    nod->deep++;
                     *(&nod->vco1+j) = arriba(arriba(n[j]));
                     *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
-                    movidas.push(nod);
+                    if(rev.find(nod->hkey()) == rev.end())
+                        movidas.push(nod);
                 }
                 if (i>pH) { // un cuadrado chico arriba de vacio
                     nodo* nod = new nodo(n);
+                    nod->padre = &n;
+                    nod->deep++;
                     *(&nod->vco1+j) = arriba(n[j]);
                     *(&nod->vco1+i) = n[j];
-                    movidas.push(nod);
+                    if(rev.find(nod->hkey()) == rev.end())
+                        movidas.push(nod);
                 }
             }
             if((i != pH) && ((moveabajo!=0) && ((moveabajo|n[i]) == n[i]))) { //barras verticales abajo
                 if (i<pH) { // barras verticales abajo
                     nodo* nod = new nodo(n);
+                    nod->padre = &n;
+                    nod->deep++;
                     *(&nod->vco1+j) = abajo(abajo(n[j]));
                     *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
-                    movidas.push(nod);
+                    if(rev.find(nod->hkey()) == rev.end())
+                        movidas.push(nod);
                 }
                 if (i>pH) { // un cuadrado chico abajo de vacio
                     nodo* nod = new nodo(n);
+                    nod->padre = &n;
+                    nod->deep++;
                     *(&nod->vco1+j) = abajo(n[j]);
                     *(&nod->vco1+i) = n[j];
-                    movidas.push(nod);
+                    if(rev.find(nod->hkey()) == rev.end())
+                        movidas.push(nod);
                 }
             }
         }
@@ -286,29 +346,41 @@ void busca::hace_movida(nodo& n) {
             if((moveizq!=0) && ((moveizq|n[i]) == n[i])) {
                     if (i==pH) { //barra horizontal a la izquierda
                         nodo* nod = new nodo(n);
+                        nod->padre = &n;
+                        nod->deep++;
                         *(&nod->vco1+j) = izquierda(izquierda(n[j]));
                         *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
-                        movidas.push(nod);
+                        if(rev.find(nod->hkey()) == rev.end())
+                            movidas.push(nod);
                     }
                     if (i > pH) { // cuadrados chicos a la izquierda
                         nodo* nod = new nodo(n);
+                        nod->padre = &n;
+                        nod->deep++;
                         *(&nod->vco1+j) = izquierda(n[j]);
                         *(&nod->vco1+i) = n[j];
-                        movidas.push(nod);
+                        if(rev.find(nod->hkey()) == rev.end())
+                            movidas.push(nod);
                     }
                 }
                 if((moveder!=0) && ((moveder|n[i]) == n[i])) {
                     if (i==pH) { //barra horizontal a la derecha
                         nodo* nod = new nodo(n);
+                        nod->padre = &n;
+                        nod->deep++;
                         *(&nod->vco1+j) = derecha(derecha(n[j]));
                         *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
-                        movidas.push(nod);
+                        if(rev.find(nod->hkey()) == rev.end())
+                            movidas.push(nod);
                     }
                     if (i > pH) { // cuadrados chicos a la derecha
                         nodo* nod = new nodo(n);
+                        nod->padre = &n;
+                        nod->deep++;
                         *(&nod->vco1+j) = derecha(n[j]);
                         *(&nod->vco1+i) = n[j];
-                        movidas.push(nod);
+                        if(rev.find(nod->hkey()) == rev.end())
+                            movidas.push(nod);
                     }
                 }
             }
@@ -316,22 +388,42 @@ void busca::hace_movida(nodo& n) {
 }
 
 void busca::run() {
+    int sz = 0;
     hace_movida(*raiz);
-    while (!movidas.empty()) {
-        nodo *temp = movidas.front();
 
+    while (!movidas.empty()) {
+        nodo *temp = movidas.top();
         movidas.pop();
         if (temp->G == GObjetivo) {
-            std::cout << "encontrado" << std::endl;
+            std::cout << "encontrado!!!!!!!!" << std::endl;
+
+
+            while(temp->padre != nullptr) {
+                pilan.push(temp);
+                temp = temp->padre;
+            }
+            std::cout << "solución encontrada en : " << pilan.size() << " pasos" << std::endl;
             break;
         }
-
-        temp->print_board();
-        std::cin.get();
-        auto it = rev.find(temp->hkey());
-        if(it == rev.end())
-            hace_movida(*temp);
+        if(movidas.size() > sz)
+            sz = movidas.size();
+        hace_movida(*temp);
+        rev.insert({temp->hkey(), temp});
     }
+
+    std::cout << "size maximo de la cola: " << sz << std::endl;
+    if(pilan.empty()) {
+        std::cout << "no se encontró solución" << std::endl;
+        return;
+    }
+    /*
+
+    while(!pilan.empty()) {
+
+        pilan.top()->print_board();
+        pilan.pop();
+        std::cin.get();
+    } */
 }
 
 
