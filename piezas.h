@@ -138,8 +138,8 @@ struct nodo {
 class compare {
 public:
     bool operator() (nodo* a, nodo* b) {
-        return (a->euristica2()) > (b->euristica2() ); //si es mayor que, los menores valores tienen prioridad
-    }
+        return (a->euristica2()) > (b->euristica2() ); //si se devuelve true, quiere decir que hay cambio en la
+    }                                                   // cola de prioridad de los elementos a y b
 };
 
 /////////
