@@ -151,8 +151,6 @@ typedef std::unordered_map<uint, nodo *> mapa_nodos;
 typedef std::priority_queue<nodo*, std::vector<nodo*>, compare> Cola_Prioridad;
 typedef std::stack<nodo *> pila_nodos;
 
-
-
 ////////////
 ///la clase solucion de busqueda
 class busca {
@@ -164,19 +162,19 @@ public:
     busca(){raiz = new nodo();}
     busca(const nodo& n);
     ~busca(){delete raiz;};
-    void insert_nodo_sin_busqueda(const nodo& n) const;
-    void insert_nodo(const nodo& n);
+
+    bool compare_insert_cola(nodo *n);
     void print_movidas()  {
         while(!movidas.empty()) {
             movidas.top()->print_board();
             movidas.pop();
         }
     }
+    void print_solution();
     void hace_movida(nodo& n); //crea la movida y la pone en la lista de movidas
     void run();
 
 };
-
 
 uint maskmoves(const uint& g);
 void print_board(const uint& b);
