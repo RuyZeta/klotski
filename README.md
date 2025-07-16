@@ -1,3 +1,4 @@
 trying to solve klotski puzzle with some kind of bitboards
-implementada búsqueda voraz.
-Como dice la teoría, no resuelve todos los casos. Solo algunos.
+BFS without heuristics
+i tried to solve with heuristic, but it is hard (like theory said).
+easy problem.
