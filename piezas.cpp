@@ -117,71 +117,58 @@ uint nodo::vaciossonAdyacentes() const {
 }
 
 // clave para el mapa de nodos
+// la anterior clave estaba mala y era el problema de todo el sistema
+// tener una buena clave es fundamental para que el algoritmo funcione
 uint nodo::hkey() const {
-    uint key = 0;
-    key |= LSB((ClearMSB(ClearMSB(G))));
-    for(int i=pV1; i<=pV4; i++) {
-        key |= ClearMSB(*(&vco1+i));
-    }
-    key |= clearLSB(H);
-    for(int i=ps1; i<=ps4; i++)
-        key |= *(&vco1+i);
-
-    return key;
+    uint a = vco1|vco2;
+    uint b = G|H; //por buena técnica deberían ser dos números separados
+    uint c = V1|V2|V3|V4;
+    uint d = s1|s2|s3|s4;
+    uint h = a;
+    h = (h * 0x85ebca6b) ^ b;
+    h = (h * 0xc2b2ae35) ^ c;
+    h = (h * 0x27d4eb2f) ^ d;
+    h ^= (h >> 16);
+    return (h);
 }
 
+// tratando de buscar una heurística que funcionara para la búsqueda A*, pero es díficil. Deep+posG resulta corto,
+// habría que ver si resulta mejor que deep solo.
 int nodo::euristica2() const {
     uint filas = first_line|second_line;
     uint columnas = fourth_col|third_col;
     int deltaH = 0;
     int deltavacio = 0;
-    int bonusvacio = 0;
     int posG = 0;
     int posV = 0;
-    int down = abajo(G);
-    int left = izquierda(G);
-    int right = derecha(G);
-    int up = arriba(G);
-    int parS = 0;
+    int deltaLado = 0;
 
-    if (vco1>>1 == vco2)
-        bonusvacio = -1;
-    if (vco1>>4 == vco2)
-        bonusvacio = -1;
-    if (vco1<<1 == vco2)
-        bonusvacio = -1;
-    if (vco1<<4 == vco2)
-        bonusvacio = -1;
+    if(arriba(G) == vco1|vco2)
+        deltaLado = -8;
+    if(abajo(G) == vco1|vco2)
+        deltaLado = -8;
+    if(izquierda(G) == vco1|vco2)
+        deltaLado = -8;
+    if(derecha(G) == vco1|vco2)
+        deltaLado = -8;
 
     // bloque con menor puntos si está en las filas de bajo
     for(int i=0; i<4; i++) // si G esta en las filas de abajo es mejor
         if(((filas<<(i*4)) & G) == G)
-            posG = i*10-20;
-
+            posG = i*5;
 
     // si los verticales están arriba, mejor
     for(int i=0; i<4; i++)
         if((filas<<(i*4)) & ((*(&vco1+pV1+i)) == (*(&vco1+pV1+i))))
-            posV = (3-i);
+            posV = (30-i*10);
 
     //horizontal mejor arriba
     for(int k = 0; k<5; k++)
         if((H & (fifth_line>>(k*4))) == H)
             deltaH = k;
 
-    for (int j=ps1; j<=ps4; j++)
-        for (int i=j+1; i<=ps4; i++) {
-                if ((izquierda((*(&vco1+j))) == (*(&vco1+i))))
-                    parS-=1;
-                if ((derecha((*(&vco1+j))) == (*(&vco1+i))))
-                    parS-=1;
-                if ((abajo((*(&vco1+j))) == (*(&vco1+i))))
-                    parS-=1;
-                if ((arriba((*(&vco1+j))) == (*(&vco1+i))))
-                    parS-=1;
-        }
-
-    return  deep + posG;
+    // si se retorna deep, es BFS puro, solamente eliminando estados repetidos. lo cual es lo mejor
+    return  deep;
 }
 
 /////////////////////////////////////////////
@@ -190,30 +177,25 @@ int nodo::euristica2() const {
 
 busca::busca(const nodo &n) {
     raiz = new nodo(n);
-
 }
 
-bool busca::compare_insert_cola(nodo *n) {
-    if (n->G == GObjetivo)
-        return true;
-    if(rev.find(n->hkey()) == rev.end()) { //no está en los ya revisados
-        movidas.push(n);
+void busca::insert_nodo_cola_rev(nodo *n) {
+    if (rev.find(n->hkey()) == rev.end()) {
+        // si no está en el mapa de nodos revisados
         rev.insert({n->hkey(), n});
+        movidas.push(n);
     }
-
-    return false;
 }
-
 
 void busca::print_solution() {
-
     while(!pilan.empty()) {
         pilan.top()->print_board();
         pilan.pop();
-        std::cin.get();
     }
 }
 
+//esto funciona, pero es muy larga. Seguramente se puede optimizar mucho.
+// un método es haciendo or con los bloques para generar una movida más rápido.
 void busca::hace_movida(nodo& n) {
     uint vacios = n.vco1|n.vco2;
     uint va = n.vaciossonAdyacentes();
@@ -227,10 +209,7 @@ void busca::hace_movida(nodo& n) {
             nod->vco1 = arriba(n.vco1);
             nod->vco2 = arriba(n.vco2);
             nod->H = vacios;
-            if (rev.find(nod->hkey()) == rev.end())
-                movidas.push(nod);
-
-
+            insert_nodo_cola_rev(nod);
         }
         if((a!=0) && (a|n.G) == n.G) {  // el bloque grande está arriba de vacios
             nodo* nod = new nodo(n);
@@ -239,8 +218,7 @@ void busca::hace_movida(nodo& n) {
             nod->vco1 = arriba(arriba(n.vco1));
             nod->vco2 = arriba(arriba(n.vco2));
             nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
-            if (rev.find(nod->hkey()) == rev.end())
-                movidas.push(nod);
+            insert_nodo_cola_rev(nod);
         }
         uint b = abajo(vacios);
         if(b == n.H) { //barra horizontal está abajo de vacios
@@ -250,8 +228,7 @@ void busca::hace_movida(nodo& n) {
             nod->vco1 = abajo(n.vco1);
             nod->vco2 = abajo(n.vco2);
             nod->H = vacios;
-            if (rev.find(nod->hkey()) == rev.end())
-                movidas.push(nod);
+            insert_nodo_cola_rev(nod);
         }
 
         if((b!=0) && ((b|n.G) == n.G)) { //el bloque grande está abajo de vacios
@@ -261,8 +238,7 @@ void busca::hace_movida(nodo& n) {
             nod->vco1 = abajo(abajo(n.vco1));
             nod->vco2 = abajo(abajo(n.vco2));
             nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
-            if (rev.find(nod->hkey()) == rev.end())
-                movidas.push(nod);
+            insert_nodo_cola_rev(nod);
         }
     }
     else if(va == 1) {
@@ -278,8 +254,7 @@ void busca::hace_movida(nodo& n) {
                 nod->vco1 = izquierda(n.vco1);
                 nod->vco2 = izquierda(n.vco2);
                 *(&nod->vco1+i) = vacios; // resulta?
-                if (rev.find(nod->hkey()) == rev.end())
-                    movidas.push(nod);
+                insert_nodo_cola_rev(nod);
             }
             if(de == n[i]) {
                 nodo* nod = new nodo(n);
@@ -288,8 +263,7 @@ void busca::hace_movida(nodo& n) {
                 nod->vco1 = derecha(n.vco1);
                 nod->vco2 = derecha(n.vco2);
                 *(&nod->vco1+i) = vacios;
-                if (rev.find(nod->hkey()) == rev.end())
-                    movidas.push(nod);
+                insert_nodo_cola_rev(nod);
             }
         }
         if((iz != 0) && (n.G == (iz|n.G))) { // el bloque está a la izquierda de vacios
@@ -299,8 +273,7 @@ void busca::hace_movida(nodo& n) {
             nod->vco1 = izquierda(izquierda(n.vco1));
             nod->vco2 = izquierda(izquierda(n.vco2));
             nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
-            if (rev.find(nod->hkey()) == rev.end())
-                movidas.push(nod);
+            insert_nodo_cola_rev(nod);
         }
 
         if((de != 0) && (n.G == (de|n.G))) { // el bloque está a la derecha de vacios verticalmente
@@ -310,8 +283,7 @@ void busca::hace_movida(nodo& n) {
             nod->vco1 = derecha(derecha(n.vco1));
             nod->vco2 = derecha(derecha(n.vco2));
             nod->G = (n.G|vacios) & ~(nod->vco1|nod->vco2);
-            if (rev.find(nod->hkey()) == rev.end())
-                movidas.push(nod);
+            insert_nodo_cola_rev(nod);
         }
 
     }
@@ -336,8 +308,7 @@ void busca::hace_movida(nodo& n) {
                     nod->deep++;
                     *(&nod->vco1+j) = arriba(arriba(n[j]));
                     *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
-                    if (rev.find(nod->hkey()) == rev.end())
-                        movidas.push(nod);
+                    insert_nodo_cola_rev(nod);
                 }
                 if (i>pH) { // un cuadrado chico arriba de vacio
                     nodo* nod = new nodo(n);
@@ -345,8 +316,7 @@ void busca::hace_movida(nodo& n) {
                     nod->deep++;
                     *(&nod->vco1+j) = arriba(n[j]);
                     *(&nod->vco1+i) = n[j];
-                    if (rev.find(nod->hkey()) == rev.end())
-                        movidas.push(nod);
+                    insert_nodo_cola_rev(nod);
                 }
             }
             if((i != pH) && ((moveabajo!=0) && ((moveabajo|n[i]) == n[i]))) { //barras verticales abajo
@@ -356,8 +326,7 @@ void busca::hace_movida(nodo& n) {
                     nod->deep++;
                     *(&nod->vco1+j) = abajo(abajo(n[j]));
                     *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
-                    if (rev.find(nod->hkey()) == rev.end())
-                        movidas.push(nod);
+                    insert_nodo_cola_rev(nod);
                 }
                 if (i>pH) { // un cuadrado chico abajo de vacio
                     nodo* nod = new nodo(n);
@@ -365,8 +334,7 @@ void busca::hace_movida(nodo& n) {
                     nod->deep++;
                     *(&nod->vco1+j) = abajo(n[j]);
                     *(&nod->vco1+i) = n[j];
-                    if (rev.find(nod->hkey()) == rev.end())
-                        movidas.push(nod);
+                    insert_nodo_cola_rev(nod);
                 }
             }
         }
@@ -379,8 +347,7 @@ void busca::hace_movida(nodo& n) {
                         nod->deep++;
                         *(&nod->vco1+j) = izquierda(izquierda(n[j]));
                         *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
-                        if (rev.find(nod->hkey()) == rev.end())
-                            movidas.push(nod);
+                        insert_nodo_cola_rev(nod);
                     }
                     if (i > pH) { // cuadrados chicos a la izquierda
                         nodo* nod = new nodo(n);
@@ -388,8 +355,7 @@ void busca::hace_movida(nodo& n) {
                         nod->deep++;
                         *(&nod->vco1+j) = izquierda(n[j]);
                         *(&nod->vco1+i) = n[j];
-                        if (rev.find(nod->hkey()) == rev.end())
-                            movidas.push(nod);
+                        insert_nodo_cola_rev(nod);
                     }
                 }
                 if((moveder!=0) && ((moveder|n[i]) == n[i])) {
@@ -399,8 +365,7 @@ void busca::hace_movida(nodo& n) {
                         nod->deep++;
                         *(&nod->vco1+j) = derecha(derecha(n[j]));
                         *(&nod->vco1+i) = (n[i]|n[j]) & ~(*(&nod->vco1+j));
-                        if (rev.find(nod->hkey()) == rev.end())
-                            movidas.push(nod);
+                        insert_nodo_cola_rev(nod);
                     }
                     if (i > pH) { // cuadrados chicos a la derecha
                         nodo* nod = new nodo(n);
@@ -408,8 +373,7 @@ void busca::hace_movida(nodo& n) {
                         nod->deep++;
                         *(&nod->vco1+j) = derecha(n[j]);
                         *(&nod->vco1+i) = n[j];
-                        if (rev.find(nod->hkey()) == rev.end())
-                            movidas.push(nod);
+                        insert_nodo_cola_rev(nod);
                     }
                 }
             }
@@ -418,6 +382,7 @@ void busca::hace_movida(nodo& n) {
 }
 
 void busca::run() {
+    uint kk = 0;
     int sz = 0;
     hace_movida(*raiz);
     int comp = 0;
@@ -433,20 +398,18 @@ void busca::run() {
                 temp = temp->padre;
             }
             std::cout << "solucion encontrada en : " << pilan.size() << " pasos" << std::endl;
+            std::cout << "numero de comparaciones : " << comp << std::endl;
             break;
         }
         comp++;
         if(movidas.size() > sz)
             sz = movidas.size();
-        if(!(sz%150000)) {
-            std::cout << "tamano de la cola: " << sz << "      numero comp : " << comp << std::endl;
-            temp->print_board(sz);
-        }
-        rev.insert({temp->hkey(), temp});
+
+
         hace_movida(*temp);
     }
 
-    std::cout << "tamano maximo de la cola: " << sz << std::endl;
+    std::cout << "tamano maximo de la cola: " << sz << "  comparaciones: " << comp << std::endl;
     if(pilan.empty()) {
         std::cout << "no se encontro solucion" << std::endl;
         return;

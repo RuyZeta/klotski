@@ -8,7 +8,7 @@ using namespace std;
 lista_nodos Nodos;
 
 int main() {
-    nodo n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13;
+    nodo n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14;
 
     uint pos[12]  {0x800, 0x400, 0xcc000, 0x22000, 0x220, 0x110, 0x44, 0x3, 0x10000, 0x1000, 0x80, 0x8};
     uint pos1[12]  {0x800, 0x80, 0x330, 0x88000, 0x44000, 0x22000, 0x11000, 0xc, 0x400, 0x40, 0x2, 0x1};
@@ -24,31 +24,34 @@ int main() {
     uint pos11[12] {0x4, 0x8, 0x33000, 0x22, 0x440, 0x8800, 0x44000, 0x300, 0x10, 0x1, 0x80, 0x80000}; //42
     uint pos12[12] {0x400, 0x800, 0x33000, 0x22, 0x44, 0x88, 0x88000, 0x300, 0x10, 0x1, 0x4000, 0x40000}; //50
     uint pos13[12] {0x1, 0x8, 0x66000, 0x110, 0x220, 0x440, 0x880, 0x6, 0x10000, 0x1000, 0x80000, 0x8000};
+    uint pos14[12] {0x2, 0x4, 0x66000, 0x11, 0x88, 0x11000, 0x88000, 0x600, 0x40, 0x20, 0x100, 0x800};// caso mio
 
 
-    n0.set_board(pos5);
-    n2.set_board(pos);
-    n3.set_board(pos1);
-    n4.set_board(pos2);
-    n5.set_board(pos3);
-    n6.set_board(pos4);
-    n7.set_board(pos6);
-    n8.set_board(pos7);
-    n9.set_board(pos8);
+    n0.set_board(pos);
+    n1.set_board(pos1);
+    n2.set_board(pos2);
+    n3.set_board(pos3);
+    n4.set_board(pos4);
+    n5.set_board(pos5);
+    n6.set_board(pos6);
+    n7.set_board(pos7);
+    n8.set_board(pos8);
+    n9.set_board(pos9);
     n10.set_board(pos10);
     n11.set_board(pos11);
     n12.set_board(pos12);
     n13.set_board(pos13);
+    n14.set_board(pos14);
 
 
     Cola_Prioridad moves;
-    nodo arr[14] {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13 };
+    nodo todos[14] {n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13 };
+    nodo hard[7] {n0, n2,n4, n7, n10, n11, n13 };
 
-    system("clear");
-    n13.print_board();
-    busca sol(n13);
+    n7.print_board();
+    busca sol(n7);
     sol.run();
-    cin.get();
+    sol.print_solution();
 
     return 0;
 }

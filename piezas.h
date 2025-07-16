@@ -124,6 +124,8 @@ struct nodo {
         }
         return *this;
     }
+    // probablemente erronea, debería compararse con grupos de bloques or de todos los Vs, Ss, Vcos.
+    // para evitar posiciones iguales
     bool operator==(const nodo& n) const {
         return (vco1 == n.vco1 && vco2 == n.vco2 &&
                 G == n.G && V1 == n.V1 && V2 == n.V2 &&
@@ -163,7 +165,7 @@ public:
     busca(const nodo& n);
     ~busca(){delete raiz;};
 
-    bool compare_insert_cola(nodo *n);
+    void insert_nodo_cola_rev(nodo *n);
     void print_movidas()  {
         while(!movidas.empty()) {
             movidas.top()->print_board();
